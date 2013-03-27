@@ -1,4 +1,8 @@
 /*
+  KnockoutFire.js
+  (c) Hiroshi Saito <hiroshi3110@gmail.com>
+  CC BY 2.0
+
   Basic Usage Example:
     var firebaseRef = new Firebase("https://yourdb.firebaseio.com/items");
     var itemsViewModel = new KnockoutFireCollectionViewModel(firebaseRef);
