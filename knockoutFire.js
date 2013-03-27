@@ -1,0 +1,53 @@
+/*
+  Basic Usage Example:
+    var firebaseRef = new Firebase("https://yourdb.firebaseio.com/items");
+    var itemsViewModel = new KnockoutFireCollectionViewModel(firebaseRef, "items");
+    ko.applyBindings(viewModel, document.getElementById("items"));
+
+  Arguments:
+    firebaseRef:
+      The firebase reference or query for collection.
+    collectionName:
+      The name for data-bind="foreach: ..."
+    objExtendFunc: function(obj, firebaseRef): obj is each value of the collection.
+      Can be used to declare computed observable using ko.computed().
+      Example:
+      new KnockoutFireCollectionViewModel(firebaseRef, "people", function(obj) {
+        obj.fullName = ko.computed(function() {
+          return obj.firstName() + " " + obj.lastName();
+        });
+      });
+
+  Tips:
+    You can get the firebase reference for a knockout context with `ko.contextFor(DOM).$data[".ref"]`.
+    Example:
+    $(document).on("click", "a.remove", function() {
+      var firebaseRef = ko.contextFor(this).$data[".ref"];
+      firebaseRef.remove();
+    });
+*/
+function KnockoutFireCollectionViewModel(firebaseRef, collectionName, objExtendFunc) {
+    var self = this;
+    var collection = self[collectionName] = ko.observableArray([]);
+    firebaseRef.on("child_added", function(addedSnap) {
+        var ref = addedSnap.ref();
+        var obj = ko.observable({
+            ".ref": ref
+        });
+        for (var name in addedSnap.val()) {
+            obj()[name] = ko.observable(addedSnap.val()[name]);
+            ref.child(name).on("value", function(valueSnap) {
+                obj()[valueSnap.name()](valueSnap.val());
+            });
+            obj()[name].subscribe(function(newValue) {
+               ref.update({name: newValue});
+            });
+        }
+        // TODO: Use inheritance and not to extend each object
+        if (objExtendFunc) {
+            objExtendFunc(obj(), ref);
+        }
+        //collection.push(obj);
+        collection.unshift(obj);
+    });
+};
