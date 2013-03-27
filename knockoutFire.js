@@ -1,12 +1,16 @@
 /*
   Basic Usage Example:
     var firebaseRef = new Firebase("https://yourdb.firebaseio.com/items");
-    var itemsViewModel = new KnockoutFireCollectionViewModel(firebaseRef, "items");
+    var itemsViewModel = new KnockoutFireCollectionViewModel(firebaseRef);
     ko.applyBindings(viewModel, document.getElementById("items"));
 
   Arguments:
     firebaseRef:
       The firebase reference or query for collection.
+    options:
+  Options:
+    reverseOrder: (true|false)
+      Order the items in reverse order of their priority.
     collectionName:
       The name for data-bind="foreach: ..."
     objExtendFunc: function(obj, firebaseRef): obj is each value of the collection.
@@ -26,8 +30,11 @@
       firebaseRef.remove();
     });
 */
-function KnockoutFireCollectionViewModel(firebaseRef, collectionName, objExtendFunc) {
-    var self = this;
+//function KnockoutFireCollectionViewModel(firebaseRef, collectionName, objExtendFunc) {
+function KnockoutFireCollectionViewModel(firebaseRef, options) {
+    var self = this,
+    options = options || {};
+    var collectionName = options.collectionName || "items";
     var collection = self[collectionName] = ko.observableArray([]);
     firebaseRef.on("child_added", function(addedSnap) {
         var ref = addedSnap.ref();
@@ -44,10 +51,13 @@ function KnockoutFireCollectionViewModel(firebaseRef, collectionName, objExtendF
             });
         }
         // TODO: Use inheritance and not to extend each object
-        if (objExtendFunc) {
-            objExtendFunc(obj(), ref);
+        if (options.objExtendFunc) {
+            options.objExtendFunc(obj(), ref);
         }
-        //collection.push(obj);
-        collection.unshift(obj);
+        if (options.reverseOrder) {
+            collection.unshift(obj);
+        } else {
+            collection.push(obj);
+        }
     });
 };
