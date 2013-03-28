@@ -33,35 +33,74 @@
       var firebaseRef = ko.contextFor(this).$data[".ref"];
       firebaseRef.remove();
     });
+
+  Todo:
+    - 
 */
-//function KnockoutFireCollectionViewModel(firebaseRef, collectionName, objExtendFunc) {
+//function KnockoutFireCollectionViewModel(firebaseRef, collectionName, itemExtendFunc) {
 function KnockoutFireCollectionViewModel(firebaseRef, options) {
     var self = this,
     options = options || {};
     var collectionName = options.collectionName || "items";
     var collection = self[collectionName] = ko.observableArray([]);
-    firebaseRef.on("child_added", function(addedSnap) {
-        var ref = addedSnap.ref();
-        var obj = ko.observable({
-            ".ref": ref
-        });
-        for (var name in addedSnap.val()) {
-            obj()[name] = ko.observable(addedSnap.val()[name]);
+    var createItem = function(itemSnap) {
+        var ref = itemSnap.ref();
+        var item = {".ref": ref};
+        for (var name in itemSnap.val()) {
+            item[name] = ko.observable(itemSnap.val()[name]);
+            item[name][".name"] = name;
             ref.child(name).on("value", function(valueSnap) {
-                obj()[valueSnap.name()](valueSnap.val());
+                item[valueSnap.name()](valueSnap.val());
             });
-            obj()[name].subscribe(function(newValue) {
-               ref.update({name: newValue});
+            item[name].subscribe(function(newValue) {
+                ref.child(this.target[".name"]).set(newValue);
             });
         }
-        // TODO: Use inheritance and not to extend each object
+        // TODO: Using inheritance or like, not to extend each object.
         if (options.objExtendFunc) {
-            options.objExtendFunc(obj(), ref);
+            options.objExtendFunc(item, ref);
         }
+        return item;
+    }
+    firebaseRef.on("child_added", function(addedSnap) {
+        var item = createItem(addedSnap);
         if (options.reverseOrder) {
-            collection.unshift(obj);
+            collection.unshift(item);
         } else {
-            collection.push(obj);
+            collection.push(item);
+        }
+    });
+    firebaseRef.on("child_removed", function(removedSnap) {
+        var name = removedSnap.name();
+        collection.remove(function(item) {
+            return name == item()[".ref"].name();
+        });
+    });
+    firebaseRef.on("child_moved", function(movedSnap, prevChildName) {
+        var i, len = collection().length, item = undefined;
+        for (i=0; i < len; i++) {
+            if (collection()[i][".ref"].name() == movedSnap.name()) {
+                item = collection.splice(i, 1)[0];
+                break;
+            }
+        }
+        if (prevChildName) {
+            for (i=0; i < len - 1; i++) {
+                if (collection()[i][".ref"].name() == prevChildName) {
+                    break;
+                }
+            }
+            if (options.reverseOrder) {
+                collection.splice(i, 0, item);
+            } else {
+                collection.splice(i + 1, 0, item);
+            }
+        } else {
+            if (options.reverseOrder) {
+                collection.unshift(item);
+            } else {
+                collection.push(item);
+            }
         }
     });
 };
