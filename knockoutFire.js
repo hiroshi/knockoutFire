@@ -31,43 +31,52 @@ KnockoutFire = {};
       });
 
   Tips:
-    You can get the firebase reference for a knockout context with `ko.contextFor(DOM).$data[".ref"]`.
+    You can get the firebase reference for a knockout context with `ko.contextFor(DOM).$data._ref`.
     Example:
     $(document).on("click", "a.remove", function() {
-      var firebaseRef = ko.contextFor(this).$data[".ref"];
+      var firebaseRef = ko.contextFor(this).$data._ref;
       firebaseRef.remove();
     });
 */
-KnockoutFire.observableArray = function(firebaseRef, options) {
+KnockoutFire.observableArray = function (firebaseRef, options) {
     var array = ko.observableArray([]);
     firebaseRef.on("child_added", function(addedSnap) {
-        var item = KnockoutFire.observableProperties(addedSnap);
-        if (options.itemExtendFunc) {
-            options.itemExtendFunc(item, addedSnap.ref());
-        }
-        if (options.reverseOrder) {
-            array.unshift(item);
+        var addItem = function(snap) {
+            var item = KnockoutFire.observableProperties(snap, options.excludes || []);
+            if (options.itemExtendFunc) {
+                options.itemExtendFunc(item, snap.ref());
+            }
+            if (options.reverseOrder) {
+                array.unshift(item);
+            } else {
+                array.push(item);
+            }
+        };
+        if (options.reference) {
+            options.reference.child(addedSnap.name()).once("value", function(valueSnap) {
+                addItem(valueSnap);
+            });
         } else {
-            array.push(item);
+            addItem(addedSnap);
         }
     });
     firebaseRef.on("child_removed", function(removedSnap) {
         var name = removedSnap.name();
         array.remove(function(item) {
-            return name == item()[".ref"].name();
+            return name == item._ref.name();
         });
     });
     firebaseRef.on("child_moved", function(movedSnap, prevChildName) {
         var i, len = array().length, item = undefined;
         for (i=0; i < len; i++) {
-            if (array()[i][".ref"].name() == movedSnap.name()) {
+            if (array()[i]._ref.name() == movedSnap.name()) {
                 item = array.splice(i, 1)[0];
                 break;
             }
         }
         if (prevChildName) {
             for (i=0; i < len - 1; i++) {
-                if (array()[i][".ref"].name() == prevChildName) {
+                if (array()[i]._ref.name() == prevChildName) {
                     break;
                 }
             }
@@ -89,18 +98,28 @@ KnockoutFire.observableArray = function(firebaseRef, options) {
 /*
   KnockoutFire.observableProperties(snapshot)
 */
-KnockoutFire.observableProperties = function(snapshot) {
-    var ref = snapshot.ref();
-    var val = {".ref": ref};
-    for (var name in snapshot.val()) {
-        val[name] = ko.observable(snapshot.val()[name]);
-        val[name][".name"] = name;
-        ref.child(name).on("value", function(valueSnap) {
-            val[valueSnap.name()](valueSnap.val());
-        });
-        val[name].subscribe(function(newValue) {
-            ref.child(this.target[".name"]).set(newValue);
-        });
+KnockoutFire.observableProperties = function(snapshot, excludes) {
+    var val = {
+        _ref: snapshot.ref(),
+        _name: snapshot.name(),
+        _priority: snapshot.getPriority()
+    };
+    if (typeof(snapshot.val()) == "object") {
+        for (var name in snapshot.val()) {
+            if (excludes.indexOf(name) > -1) {
+                continue;
+            }
+            val[name] = ko.observable(snapshot.val()[name]);
+            val[name][".name"] = name;
+            val._ref.child(name).on("value", function(valueSnap) {
+                val[valueSnap.name()](valueSnap.val());
+            });
+            val[name].subscribe(function(newValue) {
+                val._ref.child(this.target[".name"]).set(newValue);
+            });
+        }
+    } else {
+        val.val = ko.observable(snapshot.val());
     }
     return val;
 };
