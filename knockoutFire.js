@@ -39,6 +39,7 @@ KnockoutFire = {};
     });
 */
 KnockoutFire.observableArray = function (firebaseRef, options) {
+    options = options || {};
     var array = ko.observableArray([]);
     firebaseRef.on("child_added", function(addedSnap) {
         var addItem = function(snap) {
