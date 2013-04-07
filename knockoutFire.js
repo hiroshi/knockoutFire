@@ -6,29 +6,29 @@
   Basic Usage Example:
     var firebaseRef = new Firebase("https://yourdb.firebaseio.com/items");
     var viewModel = {
-      "items": KnockoutFire.observableArray(firebaseRef)
+      "items": ko.observableArray().extend{firebaseArray:{firebaase: firebaseRef}})
     };
     ko.applyBindings(viewModel, document.getElementById("items"));
 */
-KnockoutFire = {};
+KnockoutFire = {version: "0.0.2"}
 /*
-  KnockoutFire.observableArray(firebaseRef, options)
+  firebaseArray observable array extender
 
-  Arguments:
-    firebaseRef:
-      The firebase reference or query.
-    options:
+  This extender bind the target observableArray with firebase as an array.
+
   Options:
+    firebase: [REQUIRED]
+      The firebase reference or query.
     reverseOrder: (true|false)
       Order the items in reverse order of their priority.
     itemExtendFunc: function(item, itemRef)
       Can be used to declare computed observable for each item
       Example:
-      KnockoutFire.observableArray(firebaseRef, function(obj) {
+      ko.observableArray().extend({firebaseArray: {firebase: firebaseRef, itemExtendFunc: function(obj) {
         item.fullName = ko.computed(function() {
           return item.firstName() + " " + item.lastName();
         });
-      });
+      }}});
 
   Tips:
     You can get the firebase reference for a knockout context with `ko.contextFor(DOM).$data._ref`.
@@ -38,12 +38,11 @@ KnockoutFire = {};
       firebaseRef.remove();
     });
 */
-KnockoutFire.observableArray = function (firebaseRef, options) {
-    options = options || {};
-    var array = ko.observableArray([]);
+ko.extenders.firebaseArray = function(array, options) {
+    var firebaseRef = options.firebase;
     firebaseRef.on("child_added", function(addedSnap) {
         var addItem = function(snap) {
-            var item = KnockoutFire.observableProperties(snap, options.excludes || []);
+            var item = ko.observable({}).extend({firebaseObject: {snapshot: snap, excludes: options.excludes}})();
             if (options.itemExtendFunc) {
                 options.itemExtendFunc(item, snap.ref());
             }
@@ -94,17 +93,24 @@ KnockoutFire.observableArray = function (firebaseRef, options) {
             }
         }
     });
-    return array
+    return array;
 };
 /*
-  KnockoutFire.observableProperties(snapshot)
+  firebaseObject observable object extender
+
+  This extender bind properties of the target with firebase as an object.
+
+  Options:
+    snapshot: [REQUIRED]
+      The firebase snapshot
 */
-KnockoutFire.observableProperties = function(snapshot, excludes) {
-    var val = {
-        _ref: snapshot.ref(),
-        _name: snapshot.name(),
-        _priority: snapshot.getPriority()
-    };
+ko.extenders.firebaseObject = function(target, options) {
+    var snapshot = options.snapshot;
+    var excludes = options.excludes || [];
+    var val = target();
+    val._ref = snapshot.ref();
+    val._name = snapshot.name();
+    val._priority = snapshot.getPriority();
     if (typeof(snapshot.val()) == "object") {
         for (var name in snapshot.val()) {
             if (excludes.indexOf(name) > -1) {
@@ -122,5 +128,5 @@ KnockoutFire.observableProperties = function(snapshot, excludes) {
     } else {
         val.val = ko.observable(snapshot.val());
     }
-    return val;
+    return target;
 };
