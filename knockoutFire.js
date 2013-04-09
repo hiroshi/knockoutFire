@@ -119,10 +119,15 @@ ko.extenders.firebaseObject = function(target, options) {
             val[name] = ko.observable(snapshot.val()[name]);
             val[name][".name"] = name;
             val._ref.child(name).on("value", function(valueSnap) {
-                val[valueSnap.name()](valueSnap.val());
+                var prop = val[valueSnap.name()];
+                prop._remoteValue = valueSnap.val();
+                prop(valueSnap.val());
             });
             val[name].subscribe(function(newValue) {
-                val._ref.child(this.target[".name"]).set(newValue);
+                var prop = this.target;
+                if (prop._remoteValue != newValue) {
+                    val._ref.child(prop[".name"]).set(newValue);
+                }
             });
         }
     } else {
