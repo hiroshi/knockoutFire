@@ -1,0 +1,10 @@
+{
+  "name": "knockoutFire",
+  "version": "0.0.2",
+  "main": "knockoutFire.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ]
+}
