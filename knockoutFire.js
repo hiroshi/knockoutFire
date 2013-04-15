@@ -12,6 +12,101 @@
 */
 KnockoutFire = {version: "0.0.2"}
 /*
+*/
+KnockoutFire.utils = {
+    "firstMatchedProperty": function(obj, regexp) {
+        for (var k in obj) {
+            if (k.match(regexp)) {
+                return k;
+            }
+        }
+    }
+}
+/*
+*/
+KnockoutFire.observable = function(firebaseRefOrSnap, map) {
+    var isPrimitive = true;
+    var self = null;
+    var ref = null;
+    var snap = null;
+    map = map || {}
+    // primitive or object?
+    if (firebaseRefOrSnap.val) {
+        isPrimitive = (typeof(firebaseRefOrSnap.val()) != "object");
+        ref = firebaseRefOrSnap.ref();
+        snap = firebaseRefOrSnap;
+    } else {
+        ref = firebaseRefOrSnap;
+        if (KnockoutFire.utils.firstMatchedProperty(map, /^[^\/\.]+$/)) {
+            isPrimitive = false;
+        }
+        // for (var k in map) {
+        //     if (k.match(/^[^\/\.]+$/)) {
+        //         isPrimitive = false;
+        //         break;
+        //     }
+        // }
+    }
+    if (isPrimitive) {
+        var val = snap ? snap.val() : null;
+        self = ko.observable(val);
+        ref.on("value", function(valueSnap) {
+            self._remoteValue = valueSnap.val();
+            self(valueSnap.val());
+        });
+        self.subscribe(function(newValue) {
+            if (self._remoteValue != newValue) {
+                self._ref.set(newValue);
+            }
+        });
+    } else {
+        self = ko.observableArray([]);
+        ref.on("child_added", function(childSnap) {
+            var name = childSnap.name();
+            // parent map has a key start with "$"
+            var variableKey = KnockoutFire.utils.firstMatchedProperty(map, /^\$/);
+            var childMap = (variableKey ? map[variableKey] : map[name]) || {};
+            if (variableKey && childMap[".indexOf"]) {
+                var childPath =  childMap[".indexOf"].replace(variableKey, name);
+                ref.root().child(childPath).once("value", function(valueSnap) {
+                    var child = KnockoutFire.observable(valueSnap, childMap);
+                    self.push(child);
+                    self()[name] = child;
+                });
+            } else {
+                if (childMap[".indexOf"]) {
+                    var childPath = childMap[".indexOf"].replace("data()", childSnap.val());
+                    var child = KnockoutFire.observable(ref.root().child(childPath), childMap);
+                    self.push(child);
+                    self()[name] = child;
+                } else {
+                    var child = KnockoutFire.observable(childSnap, childMap);
+                    self.push(child);
+                    self()[name] = child;
+                }
+            }
+        });
+    }
+    // for (var k in map) {
+    //     self[k] = map[k];
+    // }
+    self._ref = ref;
+    self()._path = ref.path.toString();
+    if (ref.name) { // Query has no name()
+        self()._name = ref.name();
+    }
+    if (snap) {
+        self()._priority = snap.getPriority();
+    }
+    if (map[".extend"]) {
+        //console.log(map[".extend"]);
+        self.extend(map[".extend"]);
+    }
+    return self;
+}
+
+
+/*
   firebaseArray observable array extender
 
   This extender bind the target observableArray with firebase as an array.
