@@ -10,8 +10,9 @@
     };
     ko.applyBindings(viewModel, document.getElementById("items"));
 */
-KnockoutFire = {version: "0.0.2"}
+KnockoutFire = {version: "0.0.3"}
 /*
+  
 */
 KnockoutFire.utils = {
     "firstMatchedProperty": function(obj, regexp) {
@@ -20,11 +21,218 @@ KnockoutFire.utils = {
                 return k;
             }
         }
+    },
+    "matchedProperties": function(obj, regexp) {
+        var props = [];
+        for (var k in obj) {
+            if (k.match(regexp)) {
+                props.push(k);
+            }
+        }
+        return props;
     }
 }
 /*
+  
 */
-KnockoutFire.observable = function(firebaseRefOrSnap, map) {
+// KnockoutFire.observablePrimitive = function(self, firebaseRef, map) {
+//     var self = ko.observable();
+//     self.extend({firebase: firebaseRef});
+//     firebaseRef.on("value", function(valueSnap) {
+//         self._remoteValue = valueSnap.val();
+//         self(valueSnap.val());
+//     });
+//     self.subscribe(function(newValue) {
+//         if (self._remoteValue != newValue) {
+//             firebaseRef.set(newValue);
+//         }
+//     });
+//     return self;
+// };
+// KnockoutFire.observableArray = function(self, firebaseRef, map) {
+//     if (self) {
+//         self([]);
+//     } else {
+//         self = ko.observableArray([]);
+//     }
+//     self.extend({firebase: firebaseRef});
+//     var variableName = KnockoutFire.utils.firstMatchedProperty(map, /^\$/);
+//     var childMap = map[variableName];
+//     firebaseRef.on("child_added", function(addedSnap) {
+//         if (childMap[".indexOf"]) {
+//             var childPath =  childMap[".indexOf"].replace(variableName, addedSnap.name());
+//             firebaseRef.root().child(childPath).once("value", function(valueSnap) {
+//                 self.push(KnockoutFire._observable(null, valueSnap.ref(), childMap));
+//             });
+//         } else {
+//             self.push(KnockoutFire._observable(null, addedSnap.ref(), childMap));
+//         }
+//     });
+//     return self;
+// };
+/*
+*/
+// KnockoutFire._observable = function(self, firebaseRef, map) {
+//     var childNames = KnockoutFire.utils.matchedProperties(map, /^[^\$\.][^\/]+$/);
+//     // object (named children) or collection ($variable name) or primitive
+//     if (childNames.length > 0) {
+//         if (self) {
+//             self({});
+//         } else {
+//             self = ko.observable({});
+//         }
+//         self.extend({firebase: firebaseRef});
+//         childNames.forEach(function(name, i) {
+//             self()[name] = KnockoutFire._observable(null, firebaseRef.child(name), map[name])
+//         });
+//     } else {
+//         var variableName = KnockoutFire.utils.firstMatchedProperty(map, /^\$/);
+//         if (variableName) {
+//             self = KnockoutFire.observableArray(self, firebaseRef, map);
+//         } else {
+//             self = KnockoutFire.observablePrimitive(self, firebaseRef, map);
+//         }
+//     }
+//     if (map[".extend"]) {
+//         self.extend(map[".extend"]);
+//     }
+//     return self;
+// };
+
+/*
+*/
+ko.extenders.firebase = function(self, options) {
+    var firebase = {
+        ref: options.firebaseRef,
+        path: options.firebaseRef.path.toString(),
+        map: options.map
+    };
+    self._ref = options.firebaseRef;
+    self._path = options.firebaseRef.path.toString();
+    self._map = options.map;
+    // query has no name
+    if (self._ref.name) {
+        self._name = self._ref.name();
+        firebase.name = self._ref.name();
+    }
+    self().firebase = firebase;
+    //console.log("knockoutFire: " + self._path);
+};
+/*
+*/
+// ko.extenders.firebasePrimitive = function(self, options) {
+//     self.extend(firebase: options);
+//     self._ref.on("value", function(valueSnap) {
+//         self._remoteValue = valueSnap.val();
+//         self(valueSnap.val());
+//     });
+//     self.subscribe(function(newValue) {
+//         if (self._remoteValue != newValue) {
+//             self._ref.set(newValue);
+//         }
+//     });
+// };
+/*
+*/
+ko.extenders.firebaseCollection = function(self, options) {
+    self.extend({"firebase": options});
+    var variableName = KnockoutFire.utils.firstMatchedProperty(self._map, /^\$/);
+    var childMap = self._map[variableName];
+    self._ref.on("child_added", function(addedSnap) {
+        var priority = addedSnap.getPriority();
+        if (childMap[".indexOf"]) {
+            var childPath =  childMap[".indexOf"].replace(variableName, addedSnap.name());
+            self._ref.root().child(childPath).once("value", function(valueSnap) {
+                var child = KnockoutFire.observable(valueSnap.ref(), childMap);
+                child._priority = priority;
+                child().firebase.priority = priority;
+                self.push(child);
+            });
+        } else {
+            var child = KnockoutFire.observable(addedSnap.ref(), childMap);
+            child._priority = priority;
+            child().firebase.priority = priority;
+            self.push(child);
+        }
+    });
+};
+/*
+*/
+ko.extenders.firebaseObject = function(self, options) {
+    self.extend({"firebase": options});
+    var childNames = KnockoutFire.utils.matchedProperties(self._map, /^[^\$\.][^\/]+$/);
+    if (childNames.length > 0) {
+        childNames.forEach(function(name, i) {
+            self()[name] = KnockoutFire.observable(self._ref.child(name), self._map[name])
+        });
+    } else {
+        //self(self._name);
+        self._ref.on("value", function(valueSnap) {
+            self._remoteValue = valueSnap.val();
+            self(valueSnap.val());
+        });
+        self.subscribe(function(newValue) {
+            if (self._remoteValue != newValue) {
+                self._ref.set(newValue);
+            }
+        });
+    }
+};
+/*
+  In map you must specify every single child.
+*/
+KnockoutFire.observable = function(firebaseRef, map) {
+    var self = null;
+    // If map has key start with "$", it must be an array.
+    var variableName = KnockoutFire.utils.firstMatchedProperty(map, /^\$/);
+    if (variableName) {
+        self = ko.observableArray([]);
+        self.extend({"firebaseCollection": {"firebaseRef": firebaseRef, "map": map}});
+        if (map[".extend"]) {
+            self.extend(map[".extend"]);
+        }
+    } else {
+        self = ko.observable({});
+        if (map[".indexOf"] && map[".indexOf"].match("data()")) {
+            //////
+            var childNames = KnockoutFire.utils.matchedProperties(map, /^[^\$\.][^\/]+$/);
+            if (childNames.length > 0) {
+                childNames.forEach(function(name, i) {
+                    self()[name] = ko.observable({});
+                });
+            }
+            //////
+            firebaseRef.on("value", function(valueSnap) {
+                var path = map[".indexOf"].replace("data()", valueSnap.val());
+                var ref = firebaseRef.root().child(path);
+                self.extend({"firebase": {"firebaseRef": ref, "map": map}});
+                childNames.forEach(function(name, i) {
+                    self()[name].extend({"firebaseObject": {"firebaseRef": ref.child(name), "map": map[name]}});
+                });
+                if (map[".extend"]) {
+                    self.extend(map[".extend"]);
+                }
+            });
+        } else {
+            self.extend({"firebaseObject": {"firebaseRef": firebaseRef, "map": map}});
+            if (map[".extend"]) {
+                self.extend(map[".extend"]);
+            }
+        }
+    }
+    return self;
+}
+
+
+
+
+
+
+
+
+
+
+KnockoutFire.__observable = function(firebaseRefOrSnap, map) {
     var isPrimitive = true;
     var self = null;
     var ref = null;
@@ -133,7 +341,7 @@ KnockoutFire.observable = function(firebaseRefOrSnap, map) {
       firebaseRef.remove();
     });
 */
-ko.extenders.firebaseArray = function(array, options) {
+ko.extenders._firebaseArray = function(array, options) {
     var firebaseRef = options.firebase;
     firebaseRef.on("child_added", function(addedSnap) {
         var addItem = function(snap) {
@@ -199,7 +407,7 @@ ko.extenders.firebaseArray = function(array, options) {
     snapshot: [REQUIRED]
       The firebase snapshot
 */
-ko.extenders.firebaseObject = function(target, options) {
+ko.extenders._firebaseObject = function(target, options) {
     var snapshot = options.snapshot;
     var excludes = options.excludes || [];
     var val = target();
