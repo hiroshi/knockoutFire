@@ -75,6 +75,12 @@ ko.extenders.firebaseArray = function(self, options) {
         self.push(child);
         self().last(child());
     });
+    firebaseRef.on("child_removed", function(childSnap) {
+        var name = childSnap.name();
+        self.remove(function(item) {
+            return name == item._ref.name();
+        });
+    });
 };
 /*
 
