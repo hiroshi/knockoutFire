@@ -69,17 +69,41 @@ ko.extenders.firebaseArray = function(self, options) {
     var firebaseRef = options.firebaseRef;
     var map = options.map;
     var childVariable = KnockoutFire.utils.firstMatchedProperty(map, /^\$/);
+    self.insert = function(child, prevChildName, reverse) {
+        var self = this;
+        var index = 0;
+        if (prevChildName) {
+            self().some(function(item, i) {
+                if (item._name == prevChildName) {
+                    index = i;
+                    return true;
+                }
+            });
+            self.splice(reverse ? index : index + 1, 0, child);
+        } else {
+            if (reverse) {
+                self.unshift(child);
+            } else {
+                self.push(child);
+            }
+        }
+    };
     self().last = ko.observable();
-    firebaseRef.on("child_added", function(childSnap) {
+    firebaseRef.on("child_added", function(childSnap, prevChildName) {
         var child = KnockoutFire.observable(childSnap.ref(), map[childVariable]);
-        self.push(child);
+        self.insert(child, prevChildName, map[".reverse"]);
         self().last(child());
     });
     firebaseRef.on("child_removed", function(childSnap) {
-        var name = childSnap.name();
         self.remove(function(item) {
-            return name == item._ref.name();
+            return childSnap.name() == item._name;
         });
+    });
+    firebaseRef.on("child_moved", function(childSnap, prevChildName) {
+        var child = self.remove(function(item) {
+            return childSnap.name() == item._name;
+        })[0];
+        self.insert(child, prevChildName, map[".reverse"]);
     });
 };
 /*
