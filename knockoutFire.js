@@ -69,9 +69,11 @@ ko.extenders.firebaseArray = function(self, options) {
     var firebaseRef = options.firebaseRef;
     var map = options.map;
     var childVariable = KnockoutFire.utils.firstMatchedProperty(map, /^\$/);
+    self().last = ko.observable();
     firebaseRef.on("child_added", function(childSnap) {
         var child = KnockoutFire.observable(childSnap.ref(), map[childVariable]);
         self.push(child);
+        self().last(child());
     });
 };
 /*
