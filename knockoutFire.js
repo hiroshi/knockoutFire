@@ -125,19 +125,8 @@ ko.extenders.firebasePrimitive = function(self, options) {
 
 */
 ko.extenders.firebase = function(self, options) {
-    var firebase = {
-        ref: options.firebaseRef,
-        path: options.firebaseRef.path.toString(),
-        map: options.map
-    };
-    self._ref = options.firebaseRef;
-    self._path = options.firebaseRef.path.toString();
-    self._map = options.map;
-    // query has no name
-    if (self._ref.name) {
-        self._name = self._ref.name();
-        firebase.name = self._ref.name();
-    }
+    var firebase = options.firebaseRef;
+    self.firebase = firebase;
     self().firebase = firebase;
 };
 /*
