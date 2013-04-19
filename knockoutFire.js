@@ -74,7 +74,7 @@ ko.extenders.firebaseArray = function(self, options) {
         var index = 0;
         if (prevChildName) {
             self().some(function(item, i) {
-                if (item._name == prevChildName) {
+                if (item.firebase.name() == prevChildName) {
                     index = i;
                     return true;
                 }
@@ -96,12 +96,12 @@ ko.extenders.firebaseArray = function(self, options) {
     });
     firebaseRef.on("child_removed", function(childSnap) {
         self.remove(function(item) {
-            return childSnap.name() == item._name;
+            return childSnap.name() == item.firebase.name();
         });
     });
     firebaseRef.on("child_moved", function(childSnap, prevChildName) {
         var child = self.remove(function(item) {
-            return childSnap.name() == item._name;
+            return childSnap.name() == item.firebase.name();
         })[0];
         self.insert(child, prevChildName, map[".reverse"]);
     });
