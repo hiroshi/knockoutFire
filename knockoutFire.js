@@ -90,7 +90,11 @@ ko.extenders.firebaseArray = function(self, options) {
     };
     self().last = ko.observable();
     firebaseRef.on("child_added", function(childSnap, prevChildName) {
-        var child = KnockoutFire.observable(childSnap.ref(), map[childVariable]);
+        //var child = KnockoutFire.observable(childSnap.ref(), map[childVariable]);
+        var childMap = map[childVariable];
+        var child = KnockoutFire.mapObservable(childMap);
+        child()[".priority"] = childSnap.getPriority();
+        child.extend({firebaseObject: {firebaseRef: childSnap.ref(), map: childMap}});
         self.insert(child, prevChildName, map[".reverse"]);
         self().last(child());
     });
@@ -103,6 +107,7 @@ ko.extenders.firebaseArray = function(self, options) {
         var child = self.remove(function(item) {
             return childSnap.name() == item.firebase.name();
         })[0];
+        child()[".priority"] = childSnap.getPriority();
         self.insert(child, prevChildName, map[".reverse"]);
     });
 };
@@ -114,6 +119,7 @@ ko.extenders.firebasePrimitive = function(self, options) {
     firebaseRef.on("value", function(valueSnap) {
         self._remoteValue = valueSnap.val();
         self(valueSnap.val());
+        self()[".priority"] = valueSnap.getPriority();
     });
     self.subscribe(function(newValue) {
         if (self._remoteValue != newValue) {
