@@ -94,6 +94,36 @@ comments: {
 }
 ```
 
+##### `.newItem` and `.priority`
+
+`.newItem` adds additional sub viewModel to an observable array.
+
+```javascript
+comments: {
+  ".newItem": true,
+  "$comment": {
+    content: true
+  }
+}
+```
+
+```html
+<div data-bind="with: comments.newItem">
+  <form data-bind="submit: create">
+    <input type="text" data-bind="value: content">
+    <input type="submit">
+  </form>
+</div>
+```
+
+If you need a `priority` to be set;
+
+```javascript
+".newItem": {
+  ".priority": function() { return Date.now() }
+}
+```
+
 ##### `.indexOf`
 
 To use [Denormalized data](https://www.firebase.com/blog/2013-04-12-denormalizing-is-normal.html) use `.indexOf`.

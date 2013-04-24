@@ -115,6 +115,49 @@ ko.extenders.firebaseArray = function(self, options) {
         }
         self.insert(child, prevChildName, map[".reverse"]);
     });
+    // newItem
+    if (map[".newItem"]) {
+        self.newItem = {"_name": ko.observable()};
+        (function() {
+            var childVariable = KnockoutFire.utils.firstMatchedProperty(map, /^\$/);
+            var childNames = KnockoutFire.utils.matchedProperties(map[childVariable], /^[^\$\.][^\/]+$/);
+            childNames.forEach(function(childName, i) {
+                self.newItem[childName] = ko.observable();
+            });
+        }());
+        self.newItem.create = function() {
+            var val = {};
+            var childVariable = KnockoutFire.utils.firstMatchedProperty(map, /^\$/);
+            var childNames = KnockoutFire.utils.matchedProperties(map[childVariable], /^[^\$\.][^\/]+$/);
+            if (childNames.length > 0) {
+                childNames.forEach(function(childName, i) {
+                    val[childName] = self.newItem[childName]();
+                });
+            } else {
+                val = true;
+            }
+            if (typeof(map[".newItem"][".priority"]) == "function") {
+                var priority = map[".newItem"][".priority"]();
+                if (typeof(val) != "object") {
+                    val = {"val": val};
+                }
+                val[".priority"] = priority;
+            }
+            var name = self.newItem["_name"]();
+            var callback = function(error) {
+                if (!error) {
+                    childNames.forEach(function(childName, i) {
+                        self.newItem[childName]("");
+                    });
+                }
+            };
+            if (name) {
+                self.firebase.child(name).set(val, callback);
+            } else {
+                self.firebase.push(val, callback);
+            }
+        };
+    }
 };
 /*
 
@@ -181,6 +224,7 @@ ko.extenders._firebaseObject = function(self, options) {
     } else {
         self.extend({firebasePrimitive: {firebaseRef: firebaseRef}});
     }
+    //console.log("  firebaseRef: " + firebaseRef);
     self.extend({firebase: {firebaseRef: firebaseRef, map: map}});
     // user extender
     if (map[".extend"]) {
