@@ -89,6 +89,23 @@ ko.extenders.firebaseArray = function(self, options) {
         }
     };
     self().last = ko.observable();
+    if (map[".limit"] > 0) {
+        firebaseRef = firebaseRef.limit(map[".limit"])
+    }    
+    if (typeof(map[".startAt"]) != "undefined") {
+        if (typeof(map[".startAt"]) == "object") {
+            firebaseRef = firebaseRef.startAt(map[".startAt"][".priority"], map[".startAt"][".name"])
+        } else {
+            firebaseRef = firebaseRef.startAt(map[".startAt"])
+        }
+    }
+    if (typeof(map[".endAt"]) != "undefined") {
+        if (typeof(map[".endAt"]) == "object") {
+            firebaseRef = firebaseRef.endAt(map[".endAt"][".priority"], map[".endAt"][".name"])
+        } else {
+            firebaseRef = firebaseRef.endAt(map[".endAt"])
+        }
+    }
     firebaseRef.on("child_added", function(childSnap, prevChildName) {
         //var child = KnockoutFire.observable(childSnap.ref(), map[childVariable]);
         var childMap = map[childVariable];

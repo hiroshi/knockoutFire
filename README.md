@@ -94,6 +94,22 @@ comments: {
 }
 ```
 
+##### `.startAt`, `.endAt`, `.limit`
+
+```javascript
+comments: {
+  ".startAt": 0,
+  ".endAt": {
+    ".priority": 100,
+    ".name": "foo"
+  },
+  ".limit": 20
+}
+```
+
+[Querying and Limiting Data in Firebase | Firebase Documentation](https://www.firebase.com/docs/queries.html)
+
+
 ##### `.newItem` and `.priority`
 
 `.newItem` adds additional sub viewModel to an observable array.
