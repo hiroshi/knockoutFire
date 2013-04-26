@@ -2,13 +2,6 @@
   KnockoutFire.js
   (c) Hiroshi Saito <hiroshi3110@gmail.com>
   CC BY 2.0
-
-  Basic Usage Example:
-    var firebaseRef = new Firebase("https://yourdb.firebaseio.com/items");
-    var viewModel = {
-      "items": ko.observableArray().extend{firebaseArray:{firebaase: firebaseRef}})
-    };
-    ko.applyBindings(viewModel, document.getElementById("items"));
 */
 KnockoutFire = {version: "0.0.3"}
 /*
