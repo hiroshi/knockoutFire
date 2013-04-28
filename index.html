@@ -1,0 +1,210 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Knockoutfire by hiroshi</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Knockoutfire</h1>
+        <p>KnockoutJs observable for Firebase</p>
+
+        <p class="view"><a href="https://github.com/hiroshi/knockoutFire">View the Project on GitHub <small>hiroshi/knockoutFire</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/hiroshi/knockoutFire/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/hiroshi/knockoutFire/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/hiroshi/knockoutFire">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>knockoutFire</h1>
+
+<p>KnockoutFire map <a href="https://www.firebase.com">Firebase</a> json structure into HTML structure using <a href="http://knockoutjs.com">KnockoutJs</a>.
+<a href="http://jsfiddle.net/4E8nh/">Live demo at jsFiddle</a>.</p>
+
+<h2>Example</h2>
+
+<h3>Firebase</h3>
+
+<div class="highlight"><pre><span class="nx">items</span><span class="o">:</span> <span class="p">{</span>
+  <span class="o">-</span><span class="nx">XXX</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">content</span><span class="o">:</span> <span class="s2">"Hello"</span>
+  <span class="p">}</span>
+  <span class="o">-</span><span class="nx">YYY</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">content</span><span class="o">:</span> <span class="s2">"World."</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<h3>HTML</h3>
+
+<div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"viewModel"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;ul</span> <span class="na">data-bind=</span><span class="s">"foreach: items"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">data-bind=</span><span class="s">"text: content"</span><span class="nt">&gt;&lt;/li&gt;</span>
+  <span class="nt">&lt;/ul&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+
+<h3>Javascript</h3>
+
+<div class="highlight"><pre><span class="kd">var</span> <span class="nx">firebase</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Firebase</span><span class="p">(</span><span class="s2">"https://knockoutFire-README-example.firebaseio-demo.com"</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">viewModel</span> <span class="o">=</span> <span class="nx">KnockoutFire</span><span class="p">.</span><span class="nx">observable</span><span class="p">(</span><span class="nx">firebase</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">items</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">"$item"</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">content</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+<span class="nx">ko</span><span class="p">.</span><span class="nx">applyBindings</span><span class="p">(</span><span class="nx">viewModel</span><span class="p">,</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s2">"viewModel"</span><span class="p">));</span>
+</pre></div>
+
+<h2>API Reference</h2>
+
+<h3>KnockoutFire.observable(firebaseRef, map)</h3>
+
+<h4>The map option</h4>
+
+<p>The notation resembles to <a href="https://www.firebase.com/docs/security/security-rules.html">Firebase Security Rule</a>.</p>
+
+<h5><code>Named propertiy</code></h5>
+
+<p>You need to specify which properties are used as observable properties of view models. KnockoutFire will retrieve only what specified in the map.</p>
+
+<ul>
+<li>Each properties will be a <code>ko.observable()</code> and synchronized with the corresponding value in Firebase.</li>
+</ul><div class="highlight"><pre><span class="nx">person</span><span class="o">:</span> <span class="p">{</span>
+  <span class="nx">firstName</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="kc">true</span>
+<span class="p">}</span>
+</pre></div>
+
+<h5>
+<code>$Variables</code> and <code>.reverse</code>
+</h5>
+
+<p>If you use a property name start with <code>$</code>, the parent property will be <code>ko.observableArray()</code>.</p>
+
+<div class="highlight"><pre><span class="nx">users</span><span class="o">:</span> <span class="p">{</span>
+  <span class="s2">"$user"</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">nickname</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>For add/remove/move operations, you should use <a href="https://www.firebase.com/docs/javascript/firebase/index.html">Firebase API</a> instead of manipulating observable array directly.</p>
+
+<div class="highlight"><pre><span class="nx">users</span><span class="p">()[</span><span class="mi">1</span><span class="p">]().</span><span class="nx">firebase</span><span class="p">.</span><span class="nx">remove</span><span class="p">();</span>
+</pre></div>
+
+<p>If you need reverse order;</p>
+
+<div class="highlight"><pre><span class="nx">comments</span><span class="o">:</span> <span class="p">{</span>
+  <span class="s2">".reverse"</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="s2">"$comment"</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">content</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<h5>
+<code>.startAt</code>, <code>.endAt</code>, <code>.limit</code>
+</h5>
+
+<div class="highlight"><pre><span class="nx">comments</span><span class="o">:</span> <span class="p">{</span>
+  <span class="s2">".startAt"</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">".endAt"</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">".priority"</span><span class="o">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="s2">".name"</span><span class="o">:</span> <span class="s2">"foo"</span>
+  <span class="p">},</span>
+  <span class="s2">".limit"</span><span class="o">:</span> <span class="mi">20</span>
+<span class="p">}</span>
+</pre></div>
+
+<p><a href="https://www.firebase.com/docs/queries.html">Querying and Limiting Data in Firebase | Firebase Documentation</a></p>
+
+<h5>
+<code>.newItem</code> and <code>.priority</code>
+</h5>
+
+<p><code>.newItem</code> adds additional sub viewModel to an observable array.</p>
+
+<div class="highlight"><pre><span class="nx">comments</span><span class="o">:</span> <span class="p">{</span>
+  <span class="s2">".newItem"</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="s2">"$comment"</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">content</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<div class="highlight"><pre><span class="nt">&lt;div</span> <span class="na">data-bind=</span><span class="s">"with: comments.newItem"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;form</span> <span class="na">data-bind=</span><span class="s">"submit: create"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"text"</span> <span class="na">data-bind=</span><span class="s">"value: content"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"submit"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;/form&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+
+<p>If you need a <code>priority</code> to be set;</p>
+
+<div class="highlight"><pre><span class="s2">".newItem"</span><span class="o">:</span> <span class="p">{</span>
+  <span class="s2">".priority"</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<h5><code>.indexOf</code></h5>
+
+<p>To use <a href="https://www.firebase.com/blog/2013-04-12-denormalizing-is-normal.html">Denormalized data</a> use <code>.indexOf</code>.</p>
+
+<div class="highlight"><pre><span class="nx">members</span><span class="o">:</span> <span class="p">{</span>
+  <span class="s2">"$user"</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">".indexOf"</span><span class="o">:</span> <span class="s2">"/users/$user"</span><span class="p">,</span>
+    <span class="s2">"nickName"</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+<p>You can access nickName like this:</p>
+
+<div class="highlight"><pre><span class="nx">members</span><span class="p">()[</span><span class="mi">0</span><span class="p">]().</span><span class="nx">nickName</span><span class="p">()</span>
+</pre></div>
+
+<h5><code>.extend</code></h5>
+
+<p>You can use <a href="http://knockoutjs.com/documentation/extenders.html">Knockout extender</a>.</p>
+
+<div class="highlight"><pre><span class="nx">ko</span><span class="p">.</span><span class="nx">extenders</span><span class="p">.</span><span class="nx">person</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">self</span><span class="p">,</span> <span class="nx">option</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">self</span><span class="p">.</span><span class="nx">fullName</span> <span class="o">=</span> <span class="nx">ko</span><span class="p">.</span><span class="nx">computed</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">firstName</span><span class="p">()</span> <span class="o">+</span> <span class="s2">" "</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">lastName</span><span class="p">();</span>
+  <span class="p">});</span>
+<span class="p">};</span>
+</pre></div>
+
+<p>Then specify the extender by name:</p>
+
+<div class="highlight"><pre><span class="nx">person</span><span class="o">:</span> <span class="p">{</span>
+  <span class="nx">firstName</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="s2">".extend"</span><span class="o">:</span> <span class="p">{</span><span class="nx">person</span><span class="o">:</span> <span class="kc">true</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/hiroshi">hiroshi</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
