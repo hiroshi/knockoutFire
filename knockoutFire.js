@@ -168,8 +168,8 @@ ko.extenders.firebaseArray = function(self, options) {
                     childNames.forEach(function(childName, i) {
                         self.newItem[childName]("");
                     });
-                    if ( typeof(map[".newItem"][".create_success"]) == "function" ) {
-                        map[".newItem"][".autofocus"]() ;
+                    if ( typeof(map[".newItem"][".on_success"]) == "function" ) {
+                        map[".newItem"][".on_success"]() ;
                     }
                 }
             };
