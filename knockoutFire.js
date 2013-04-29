@@ -141,7 +141,16 @@ ko.extenders.firebaseArray = function(self, options) {
             var childNames = KnockoutFire.utils.matchedProperties(map[childVariable], /^[^\$\.][^\/]+$/);
             if (childNames.length > 0) {
                 childNames.forEach(function(childName, i) {
-                    val[childName] = self.newItem[childName]();
+                    // try defaults
+                    if (typeof(map[".newItem"][childName]) == "function") {
+                        var defaultValue = map[".newItem"][childName]();
+                        if (typeof(val) != "object") {
+                            val = {"val": val};
+                        }
+                        val[childName] = defaultValue;
+                    } else {
+                        val[childName] = self.newItem[childName]();
+                    }
                 });
             } else {
                 val = true;
@@ -159,6 +168,9 @@ ko.extenders.firebaseArray = function(self, options) {
                     childNames.forEach(function(childName, i) {
                         self.newItem[childName]("");
                     });
+                    if ( typeof(map[".newItem"][".on_success"]) == "function" ) {
+                        map[".newItem"][".on_success"]() ;
+                    }
                 }
             };
             if (name) {
