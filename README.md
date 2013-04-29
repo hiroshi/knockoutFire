@@ -140,6 +140,22 @@ If you need a `priority` to be set;
 }
 ```
 
+If you need a default value rather than from a data-bind;
+
+```javascript
+".newItem": {
+  isdone: function(){ return false; }
+}
+```
+
+If you need a callback on success;
+
+```javascript
+".newItem": {
+  ".on_success": function(){ do_someting(); }
+}
+```
+
 ##### `.indexOf`
 
 To use [Denormalized data](https://www.firebase.com/blog/2013-04-12-denormalizing-is-normal.html) use `.indexOf`.
