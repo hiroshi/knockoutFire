@@ -162,12 +162,18 @@ ko.extenders.firebaseArray = function(self, options) {
                 }
                 val[".priority"] = priority;
             }
+            if (typeof(map[".newItem"][".autofocus"]) == "function") {
+                var autofocus = map[".newItem"][".autofocus"]();
+            }
             var name = self.newItem["_name"]();
             var callback = function(error) {
                 if (!error) {
                     childNames.forEach(function(childName, i) {
                         self.newItem[childName]("");
                     });
+                    if ( typeof(map[".newItem"][".autofocus"]) == "string" ) {
+                        document.getElementById( map[".newItem"][".autofocus"] ).focus();
+                    }
                 }
             };
             if (name) {
