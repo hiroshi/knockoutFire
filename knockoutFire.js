@@ -143,11 +143,7 @@ ko.extenders.firebaseArray = function(self, options) {
                 childNames.forEach(function(childName, i) {
                     // try defaults
                     if (typeof(map[".newItem"][childName]) == "function") {
-                        var defaultValue = map[".newItem"][childName]();
-                        if (typeof(val) != "object") {
-                            val = {"val": val};
-                        }
-                        val[childName] = defaultValue;
+                        val[childName] = map[".newItem"][childName]();
                     } else {
                         val[childName] = self.newItem[childName]();
                     }
