@@ -1,5 +1,9 @@
 ## 0.0.4 ##
 
+*   Fixed new item with null ``previous item'' being added to the end of the collection rather than the beginning [#5]
+
+    *Baz*
+
 *   `.on_success` callback option for `.newItem` is added. [#4]
 
     *ayurmedia*
