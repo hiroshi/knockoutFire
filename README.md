@@ -2,7 +2,20 @@ knockoutFire
 ============
 
 KnockoutFire map [Firebase](https://www.firebase.com) json structure into HTML structure using [KnockoutJs](http://knockoutjs.com).
+
 [Live demo at jsFiddle](http://jsfiddle.net/4E8nh/).
+
+How to use
+----------
+
+### Github pages as CDN
+
+[Latest release](http://hiroshi.github.io/knockoutFire/knockoutfire.js) may have breaking changes.
+
+I recommend to use versioned release, like [0.0.3](http://hiroshi.github.io/knockoutFire/knockoutfire-0.0.3.js) instead.
+
+Also see [CHANGELOG](https://github.com/hiroshi/knockoutFire/blob/master/CHANGELOG.md).
+
 
 Example
 -------
@@ -44,7 +57,8 @@ var viewModel = KnockoutFire.observable(firebase, {
 ko.applyBindings(viewModel, document.getElementById("viewModel"));
 ```
 
-## API Reference
+API Reference
+-------------
 
 ### KnockoutFire.observable(firebaseRef, map)
 
