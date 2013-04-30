@@ -1,7 +1,7 @@
 {
   "name": "knockoutFire",
-  "version": "0.0.2",
-  "main": "knockoutFire.js",
+  "version": "0.0.3",
+  "main": "knockoutfire.js",
   "ignore": [
     "**/.*",
     "node_modules",
