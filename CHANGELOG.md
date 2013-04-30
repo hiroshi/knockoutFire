@@ -1,5 +1,9 @@
 ## 0.0.4 ##
 
+*   Changed filename to "knockoutfire.js" (all lowercase) [#6]
+
+    *Baz*
+
 *   Fixed new item with null ``previous item'' being added to the end of the collection rather than the beginning [#5]
 
     *Baz*
