@@ -144,9 +144,6 @@ ko.extenders.firebaseArray = function(self, options) {
                     // try defaults
                     if (typeof(map[".newItem"][childName]) == "function") {
                         var defaultValue = map[".newItem"][childName]();
-                        if (typeof(val) != "object") {
-                            val = {"val": val};
-                        }
                         val[childName] = defaultValue;
                     } else {
                         val[childName] = self.newItem[childName]();
@@ -204,6 +201,9 @@ ko.extenders.firebasePrimitive = function(self, options) {
 
 */
 ko.extenders.firebase = function(self, options) {
+    // if database is missing an attribute we continue
+    if( typeof self() == 'null' || options.map == true ) return; 
+    
     var firebase = options.firebaseRef;
     self.firebase = firebase;
     self().firebase = firebase;
