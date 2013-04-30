@@ -75,9 +75,9 @@ ko.extenders.firebaseArray = function(self, options) {
             self.splice(reverse ? index : index + 1, 0, child);
         } else {
             if (reverse) {
-                self.unshift(child);
-            } else {
                 self.push(child);
+            } else {
+                self.unshift(child);
             }
         }
     };
