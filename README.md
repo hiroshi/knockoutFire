@@ -14,6 +14,8 @@ How to use
 
 I recommend to use versioned release, like [0.0.3](http://hiroshi.github.io/knockoutFire/knockoutfire-0.0.3.js) instead.
 
+    <script type="text/javascript" src="//hiroshi.github.io/knockoutFire/knockoutfire-0.0.3.js"></script>
+
 Also see [CHANGELOG](https://github.com/hiroshi/knockoutFire/blob/master/CHANGELOG.md).
 
 
