@@ -23,6 +23,20 @@ KnockoutFire.utils = {
             }
         }
         return props;
+    },
+    "emptyVal": function(val) {
+        if (val == undefined || val == null) {
+            return true;
+        } else if (typeof(val) == "object") {
+            var empty = true;
+            for (k in val) {
+                if (!KnockoutFire.utils.emptyVal(val[k])) {
+                    empty = false;
+                }
+            }
+            return empty;
+        }
+        return false;
     }
 }
 /*
@@ -139,16 +153,16 @@ ko.extenders.firebaseArray = function(self, options) {
             var val = {};
             var childVariable = KnockoutFire.utils.firstMatchedProperty(map, /^\$/);
             var childNames = KnockoutFire.utils.matchedProperties(map[childVariable], /^[^\$\.][^\/]+$/);
-            if (childNames.length > 0) {
-                childNames.forEach(function(childName, i) {
-                    // try defaults
-                    if (typeof(map[".newItem"][childName]) == "function") {
-                        val[childName] = map[".newItem"][childName]();
-                    } else {
-                        val[childName] = self.newItem[childName]();
-                    }
-                });
-            } else {
+            childNames.forEach(function(childName, i) {
+                // try defaults
+                if (typeof(map[".newItem"][childName]) == "function") {
+                    val[childName] = map[".newItem"][childName]();
+                } else {
+                    val[childName] = self.newItem[childName]();
+                }
+            });
+            // If val is empty in firebase, push will be ignored. Set true instead.
+            if (!name && KnockoutFire.utils.emptyVal(val)) {
                 val = true;
             }
             if (typeof(map[".newItem"][".priority"]) == "function") {
