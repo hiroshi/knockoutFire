@@ -200,10 +200,12 @@ ko.extenders.firebasePrimitive = function(self, options) {
 
 */
 ko.extenders.firebase = function(self, options) {
-    if( typeof self() == 'null' || options.map == true ) return;
+    //if( typeof self() == 'null' || options.map == true ) return;
     var firebase = options.firebaseRef;
     self.firebase = firebase;
-    self().firebase = firebase;
+    if (self() instanceof Object) {
+        self().firebase = firebase;
+    }
 };
 /*
   
