@@ -168,7 +168,7 @@ ko.extenders.firebaseArray = function(self, options) {
             if (typeof(map[".newItem"][".priority"]) == "function") {
                 var priority = map[".newItem"][".priority"]();
                 if (typeof(val) != "object") {
-                    val = {"val": val};
+                    val = {".value": val};
                 }
                 val[".priority"] = priority;
             }
