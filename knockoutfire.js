@@ -202,7 +202,9 @@ ko.extenders.firebasePrimitive = function(self, options) {
 ko.extenders.firebase = function(self, options) {
     var firebase = options.firebaseRef;
     self.firebase = firebase;
-    self().firebase = firebase;
+    if (self() instanceof Object) {
+        self().firebase = firebase;
+    }
 };
 /*
   
