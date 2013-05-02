@@ -3,7 +3,7 @@
   (c) Hiroshi Saito <hiroshi3110@gmail.com>
   CC BY 2.0
 */
-KnockoutFire = {version: "0.0.4"}
+KnockoutFire = {version: "0.0.5b"}
 /*
   
 */
