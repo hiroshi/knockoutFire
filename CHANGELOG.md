@@ -1,5 +1,9 @@
 ## 0.0.4 ##
 
+*   More tolerant reading data with missing attributes [#8]
+
+   *ayurmedia* and *hiroshi*
+
 *   Changed filename to "knockoutfire.js" (all lowercase) [#6]
 
     *Baz*
