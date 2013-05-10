@@ -3,7 +3,26 @@
   (c) Hiroshi Saito <hiroshi3110@gmail.com>
   CC BY 2.0
 */
+(function() {
+
 KnockoutFire = {version: "0.0.5b"}
+
+// http://www.matteoagosti.com/blog/2013/02/24/writing-javascript-modules-for-both-browser-and-node/
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = KnockoutFire;
+} else if (typeof define === 'function' && define.amd) {
+    define([], function() {
+      return KnockoutFire;
+    });
+} else {
+    window.KnockoutFire = KnockoutFire;
+}
+
+if (typeof ko === "undefined") {
+  ko = require("knockout");
+}
+
+
 /*
   
 */
@@ -265,3 +284,4 @@ ko.extenders._firebaseObject = function(self, options) {
         self.extend(map[".extend"]);
     }
 };
+})();
