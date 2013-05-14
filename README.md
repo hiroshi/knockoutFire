@@ -12,11 +12,22 @@ How to use
 
 [Latest release](http://hiroshi.github.io/knockoutFire/knockoutfire.js) may have breaking changes.
 
-I recommend to use versioned release, like [0.0.4](http://hiroshi.github.io/knockoutFire/knockoutfire-0.0.4.js) instead.
+I recommend to use versioned release, like [0.0.5](http://hiroshi.github.io/knockoutFire/knockoutfire-0.0.5.js) instead.
 
-    <script type="text/javascript" src="//hiroshi.github.io/knockoutFire/knockoutfire-0.0.4.js"></script>
+    <script type="text/javascript" src="//hiroshi.github.io/knockoutFire/knockoutfire-0.0.5.js"></script>
 
 Also see [CHANGELOG](https://github.com/hiroshi/knockoutFire/blob/master/CHANGELOG.md).
+
+### Using bower
+
+In bower.json or component.json.
+
+    "dependencies": {
+      ...
+      "knockoutfire": "git://github.com/hiroshi/knockoutFire.git"
+    }
+
+This will fetch latest tag.
 
 
 Example

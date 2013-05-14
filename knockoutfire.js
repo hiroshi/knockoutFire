@@ -5,7 +5,7 @@
 */
 (function() {
 
-KnockoutFire = {version: "0.0.5b"}
+KnockoutFire = {version: "0.0.5"}
 
 // http://www.matteoagosti.com/blog/2013/02/24/writing-javascript-modules-for-both-browser-and-node/
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

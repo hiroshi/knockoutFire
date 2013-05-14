@@ -1,3 +1,9 @@
+## 0.0.5 ##
+
+*   Be compatible with RequireJs. Also can require() in node.js for testing.
+
+    *hiroshi*
+
 ## 0.0.4 ##
 
 *   More tolerant reading data with missing attributes [#8]

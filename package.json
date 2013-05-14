@@ -1,0 +1,8 @@
+{
+  "name": "knockoutfire",
+  "version": "0.0.5",
+  "dependencies": {
+    "firebase": "*",
+    "knockout": "~2.2.1"
+  }
+}
