@@ -1,6 +1,6 @@
 {
   "name": "knockoutFire",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "knockoutfire.js",
   "dependencies": {
     "knockout": "~2.2.1"
