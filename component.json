@@ -2,6 +2,9 @@
   "name": "knockoutFire",
   "version": "0.0.4",
   "main": "knockoutfire.js",
+  "dependencies": {
+    "knockout": "~2.2.1"
+  },
   "ignore": [
     "**/.*",
     "node_modules",
