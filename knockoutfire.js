@@ -118,16 +118,20 @@ ko.extenders.firebaseArray = function(self, options) {
     if (map[".limit"] > 0) {
         firebaseRef = firebaseRef.limit(map[".limit"])
     }    
-    if (typeof(map[".startAt"]) != "undefined") {
+    if (map.hasOwnProperty(".startAt")) {
         if (map[".startAt"] instanceof Object) {
             firebaseRef = firebaseRef.startAt(map[".startAt"][".priority"], map[".startAt"][".name"])
+        } else if (map[".startAt"] === undefined) {
+            firebaseRef = firebaseRef.startAt()
         } else {
             firebaseRef = firebaseRef.startAt(map[".startAt"])
         }
     }
-    if (typeof(map[".endAt"]) != "undefined") {
+    if (map.hasOwnProperty(".endAt")) {
         if (map[".endAt"] instanceof Object) {
             firebaseRef = firebaseRef.endAt(map[".endAt"][".priority"], map[".endAt"][".name"])
+        } else if (map[".endAt"] === undefined) {
+            firebaseRef = firebaseRef.endAt()
         } else {
             firebaseRef = firebaseRef.endAt(map[".endAt"])
         }

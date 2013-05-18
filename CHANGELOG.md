@@ -1,3 +1,7 @@
+*   .startAt and .endAt should take `unedfined` to call startAt() and endAt() without arguments.
+
+    *hiroshi*
+
 ## 0.0.5 ##
 
 *   Be compatible with RequireJs. Also can require() in node.js for testing.

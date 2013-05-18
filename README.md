@@ -134,7 +134,11 @@ comments: {
 }
 ```
 
-[Querying and Limiting Data in Firebase | Firebase Documentation](https://www.firebase.com/docs/queries.html)
+- `"startAt": 1` -> `startAt(1)`
+- `"startAt": {".priority": 1, ".name": "hiroshi"}` -> `startAt(1, "hiroshi")`
+- `"startAt": undefined` -> `startAt()`
+
+For more information, [Querying and Limiting Data in Firebase | Firebase Documentation](https://www.firebase.com/docs/queries.html).
 
 
 ##### `.newItem` and `.priority`
