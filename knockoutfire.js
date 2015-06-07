@@ -100,7 +100,7 @@ ko.extenders.firebaseArray = function(self, options) {
         var index = 0;
         if (prevChildName) {
             self().some(function(item, i) {
-                if (item.firebase.name() == prevChildName) {
+                if (item.firebase.key() == prevChildName) {
                     index = i;
                     return true;
                 }
@@ -120,7 +120,7 @@ ko.extenders.firebaseArray = function(self, options) {
     }    
     if (map.hasOwnProperty(".startAt")) {
         if (map[".startAt"] instanceof Object) {
-            firebaseRef = firebaseRef.startAt(map[".startAt"][".priority"], map[".startAt"][".name"])
+            firebaseRef = firebaseRef.startAt(map[".startAt"][".priority"], map[".startAt"][".key"])
         } else if (map[".startAt"] === undefined) {
             firebaseRef = firebaseRef.startAt()
         } else {
@@ -129,7 +129,7 @@ ko.extenders.firebaseArray = function(self, options) {
     }
     if (map.hasOwnProperty(".endAt")) {
         if (map[".endAt"] instanceof Object) {
-            firebaseRef = firebaseRef.endAt(map[".endAt"][".priority"], map[".endAt"][".name"])
+            firebaseRef = firebaseRef.endAt(map[".endAt"][".priority"], map[".endAt"][".key"])
         } else if (map[".endAt"] === undefined) {
             firebaseRef = firebaseRef.endAt()
         } else {
@@ -150,12 +150,12 @@ ko.extenders.firebaseArray = function(self, options) {
     });
     firebaseRef.on("child_removed", function(childSnap) {
         self.remove(function(item) {
-            return childSnap.name() == item.firebase.name();
+            return childSnap.key() == item.firebase.key();
         });
     });
     firebaseRef.on("child_moved", function(childSnap, prevChildName) {
         var child = self.remove(function(item) {
-            return childSnap.name() == item.firebase.name();
+            return childSnap.key() == item.firebase.key();
         })[0];
         if (childSnap.getPriority()) {
             child()[".priority"] = childSnap.getPriority();
@@ -250,7 +250,7 @@ ko.extenders.firebaseObject = function(self, options) {
     var firebaseRef = options.firebaseRef;
     var map = options.map;
     if (map[".indexOf"] && map[".indexOf"].match(/\$/)) {
-        var path = map[".indexOf"].replace(/\$[^\/]+/, firebaseRef.name());
+        var path = map[".indexOf"].replace(/\$[^\/]+/, firebaseRef.key());
         firebaseRef = firebaseRef.root().child(path);
     }
     if (map[".indexOf"] && map[".indexOf"].match(/data\(\)/)) {
