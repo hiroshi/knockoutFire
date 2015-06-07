@@ -1,3 +1,8 @@
+EDIT: 2015-06-08: Status of the project and my opinion
+------------------------------------------------------
+I haven't use Firebase for a year or so. If I use Firebase for Javasecript front end work now, I think I choose React instead of Knockout. Sorry, but I mean I abandoned this project.
+
+
 knockoutFire
 ============
 
